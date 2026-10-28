@@ -10,7 +10,9 @@ import pandas as pd
 import re
 
 # ユーザーからの入力を受け取る
-pattern = input("ソート対象のファイル名パターンを入力してください（例: 20240000_ガス_*_fitting）\n[「*」以前の部分]+[spreadsheet]が出力がファイル名となります\n")
+pattern = input("ソート対象のファイル名パターンを入力してください（例: 20240000_ガス_*_fitting）"
+                "\n[「*」以前の部分]+[spreadsheet]が出力がファイル名となります"
+                "\nソート対象とする数値およびそれ以降を*とすることで正しくソートが可能です")
 
 # アスタリスク部分にマッチする正規表現パターンを作成
 regex_pattern = pattern.replace('*', r'(\d+)')
@@ -21,14 +23,37 @@ prefix = pattern.split('*')[0]
 current_directory = os.path.dirname(os.path.abspath(__file__))
 measurement_files = glob.glob(os.path.join(current_directory, "*.csv"))
 
-# 数値を含むファイル名でソート
-def extract_number(file_name):
-    # 正規表現でファイル名から数値を抽出
-    match = re.search(regex_pattern, file_name)
-    return int(match.group(1)) if match else float('inf')  # 数値がない場合は無限大を返す
+# --- ここから差し替え ---
 
-# ファイル名を数値に基づいてソート
+# 数値を含むファイル名でソートするための関数
+def extract_number(file_name):
+    match = re.search(regex_pattern, file_name)
+    return int(match.group(1)) if match else float('inf')
+
+print("\n" + "="*50)
+print("【ファイル名の並び替えを実行中...】")
+print(f"適応するパターン: {regex_pattern}")
+print("="*50)
+
+# ① まず先に「数値に基づいて並び替え（ソート）」を完了させる
 measurement_files = sorted(measurement_files, key=lambda f: extract_number(os.path.basename(f)))
+
+# ② 並び替えが【完了したリスト】を画面に表示する
+for file in measurement_files:
+    b_name = os.path.basename(file)
+    num = extract_number(b_name)
+    
+    if num == float('inf'):
+        print(f"❌ マッチ失敗 -> [最後尾へ] : {b_name} (パターンに一致する数値が見つかりません)")
+    else:
+        print(f"⭕ 並び替え済 -> [判定数値: {num:3d}] : {b_name}")
+
+print("="*50)
+print("【並び替え完了】上記の正しい数値順（小さい順）でこれからの解析処理を行います。")
+print("="*50 + "\n")
+
+# --- ここまで差し替え ---
+
 
 ppm_list = []
 stdv_list = []
