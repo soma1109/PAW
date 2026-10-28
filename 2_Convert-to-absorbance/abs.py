@@ -3,27 +3,6 @@ import os
 import subprocess
 import traceback
 
-def switch_to_venv():
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    target_python = os.path.abspath(os.path.join(current_dir, "../.venv/Scripts/python.exe"))
-    
-    if os.path.normcase(os.path.abspath(sys.executable)) == os.path.normcase(target_python):
-        return
-
-    if os.path.exists(target_python):
-        print(f"[自動切替] .venv の環境に切り替えます...")
-        try:
-            result = subprocess.run([target_python] + sys.argv)
-            sys.exit(result.returncode)
-        except Exception as e:
-            print(f"環境の切り替えに失敗しました: {e}")
-            sys.exit(1)
-    else:
-        print(f"【警告】指定された仮想環境が見つかりません: {target_python}")
-        print("システム側の Python で続行します...")
-
-switch_to_venv()
-
 import glob
 import numpy as np
 
