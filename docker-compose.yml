@@ -1,0 +1,7 @@
+services:
+  paw-analyzer:
+    build: .
+    container_name: paw-container
+    # ここが「ボリューム」の設定（手元のフォルダとコンテナ内を直結する魔法）
+    volumes:
+      - .:/app

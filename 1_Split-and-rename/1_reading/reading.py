@@ -1,42 +1,3 @@
-import sys
-import os
-import subprocess
-
-def switch_to_venv():
-    """
-    現在の実行環境が .venv でなければ、2個上にある .venv の Python で
-    自分自身を自動的に再起動（リブート）する
-    """
-    # このスクリプトがある場所を基準にする
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    
-    # 2個上のディレクトリにある .venv の Python のパスを正確に割り出す
-    # （※もし1個上の階層なら '../.venv/Scripts/python.exe' に変更してください）
-    target_python = os.path.abspath(os.path.join(current_dir, "../../.venv/Scripts/python.exe"))
-    
-    # すでに .venv の Python で動いている場合はそのまま進む
-    if os.path.normcase(os.path.abspath(sys.executable)) == os.path.normcase(target_python):
-        return
-
-    # .venv の Python が存在する場合、そちらに切り替えて自分を再実行する
-    if os.path.exists(target_python):
-        print(f"[自動切替] .venv の環境に切り替えます...")
-        try:
-            # 自分自身を .venv の Python でもう一度起動し、引数も引き継ぐ
-            result = subprocess.run([target_python] + sys.argv)
-            # 再起動したプロセスの終了コードを引き継いで終了
-            sys.exit(result.returncode)
-        except Exception as e:
-            print(f"環境の切り替えに失敗しました: {e}")
-            sys.exit(1)
-    else:
-        print(f"【警告】指定された仮想環境が見つかりません: {target_python}")
-        print("システム側の Python で続行します...")
-
-# 実行の最最初に必ずチェックさせる
-switch_to_venv()
-
-
 import os
 import re
 import sys
@@ -82,10 +43,10 @@ def save_filenames_to_excel():
     all_files = os.listdir()
     
     # 対象ファイルをフィルタリング
-    valid_files = [os.path.splitext(f)[0] for f in all_files if not f.endswith(('.py', '.txt', '.xlsx', '.xlsm'))]
+    valid_files = [os.path.splitext(f)[0] for f in all_files if not f.endswith(('.py', '.txt', '.xlsx', '.xlsm', '.bat'))]
     
     if not valid_files:
-        print("  -> 【注意】対象となるファイル（.py, .txt, .xlsx, .xlsm 以外）が見つかりませんでした。")
+        print("  -> 【注意】対象となるファイル（.py, .txt, .xlsx, .xlsm, .bat 以外）が見つかりませんでした。")
         return
 
     data = []
@@ -103,7 +64,7 @@ def save_filenames_to_excel():
         key=custom_sort_key
     )
     
-    excel_filename = 'non_py_txt_xlsx_xlsm_files.xlsx'
+    excel_filename = 'filesname.xlsx'
     df[['File Name']].to_excel(excel_filename, index=False)
     print(f"  -> 成功: '{excel_filename}' を保存しました。")
 
@@ -151,7 +112,7 @@ def save_txt_to_single_excel():
     txt_file_name = txt_files[0]
     base_name = txt_file_name.split(' ')[0]
     
-    xlsm_filename = f"{base_name}_spectre.xlsm"
+    xlsm_filename = f"spectre.xlsm"
     
     workbook.save(xlsm_filename)
     print(f"  -> 成功: '{xlsm_filename}' を保存しました！")
